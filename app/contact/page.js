@@ -3,7 +3,7 @@
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
 
-export default function ContactForm() {
+export default function ContactPage() {
 
   const [formData, setFormData] = useState({
     name: "",
@@ -13,70 +13,86 @@ export default function ContactForm() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
-  // ENV VARIABLES
-  const SERVICE_ID =
-    process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
-
-  const TEMPLATE_ID =
-    process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
-
-  const AUTO_REPLY_TEMPLATE_ID =
-    process.env.NEXT_PUBLIC_EMAILJS_AUTO_TEMPLATE_ID;
-
-  const PUBLIC_KEY =
-    process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
-
-  // HANDLE INPUT CHANGES
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
   };
 
-  // HANDLE FORM SUBMIT
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     setLoading(true);
-    setSuccess(false);
 
     try {
 
+      // =========================
       // SEND EMAIL TO YOU
+      // =========================
+
       await emailjs.send(
-        SERVICE_ID,
-        TEMPLATE_ID,
+
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+
         {
           from_name: formData.name,
           from_email: formData.email,
           subject: formData.subject,
           message: formData.message,
-          to_name: "Jayadip",
         },
-        PUBLIC_KEY
+
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
+      console.log("Main email sent successfully");
+
+      // =========================
       // AUTO REPLY TO CLIENT
-      await emailjs.send(
-        SERVICE_ID,
-        AUTO_REPLY_TEMPLATE_ID,
-        {
-          from_name: "Jayadip",
-          to_name: formData.name,
-          to_email: formData.email,
-          subject: formData.subject,
-          message: formData.message,
-        },
-        PUBLIC_KEY
-      );
+      // =========================
 
-      // SUCCESS
-      setSuccess(true);
+      try {
 
+        await emailjs.send(
+
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+
+          process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID,
+
+          {
+            to_name: formData.name,
+            to_email: formData.email,
+            subject: formData.subject,
+            message: formData.message,
+          },
+
+          process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+        );
+
+        console.log("Auto reply sent successfully");
+
+      } catch (autoReplyError) {
+
+        console.log("Auto reply failed:", autoReplyError);
+
+      }
+
+      // =========================
+      // SUCCESS MESSAGE
+      // =========================
+
+      alert("Message sent successfully!");
+
+      // =========================
       // RESET FORM
+      // =========================
+
       setFormData({
         name: "",
         email: "",
@@ -86,36 +102,33 @@ export default function ContactForm() {
 
     } catch (error) {
 
-      console.error("EMAILJS FULL ERROR:", error);
+      console.error("Main EmailJS Error:", error);
 
-      alert(
-        error?.text ||
-        error?.message ||
-        "Failed to send message"
-      );
+      alert("Failed to send message.");
 
     } finally {
 
       setLoading(false);
 
     }
+
   };
 
   return (
-    <section className="w-full py-20">
 
-      <div className="max-w-2xl mx-auto px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10">
 
-        <h2 className="text-4xl font-bold mb-8 text-center">
+      <div className="w-full max-w-2xl">
+
+        <h1 className="text-4xl font-bold mb-8 text-center">
           Contact Me
-        </h2>
+        </h1>
 
         <form
           onSubmit={handleSubmit}
           className="space-y-6"
         >
 
-          {/* NAME */}
           <input
             type="text"
             name="name"
@@ -123,10 +136,9 @@ export default function ContactForm() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full p-4 rounded-xl border outline-none focus:ring-2"
+            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
           />
 
-          {/* EMAIL */}
           <input
             type="email"
             name="email"
@@ -134,10 +146,9 @@ export default function ContactForm() {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full p-4 rounded-xl border outline-none focus:ring-2"
+            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
           />
 
-          {/* SUBJECT */}
           <input
             type="text"
             name="subject"
@@ -145,40 +156,35 @@ export default function ContactForm() {
             value={formData.subject}
             onChange={handleChange}
             required
-            className="w-full p-4 rounded-xl border outline-none focus:ring-2"
+            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
           />
 
-          {/* MESSAGE */}
           <textarea
             name="message"
             placeholder="Your Message"
-            rows={6}
+            rows="6"
             value={formData.message}
             onChange={handleChange}
             required
-            className="w-full p-4 rounded-xl border outline-none focus:ring-2"
+            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
           />
 
-          {/* BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-black text-white py-4 rounded-xl hover:opacity-90 transition disabled:opacity-50"
+            className="w-full bg-black text-white rounded-lg py-4 text-lg"
           >
-            {loading ? "Sending..." : "Send Message"}
-          </button>
 
-          {/* SUCCESS MESSAGE */}
-          {success && (
-            <p className="text-green-600 text-center font-medium">
-              Message sent successfully!
-            </p>
-          )}
+            {loading ? "Sending..." : "Send Message"}
+
+          </button>
 
         </form>
 
       </div>
 
-    </section>
+    </div>
+
   );
+
 }
