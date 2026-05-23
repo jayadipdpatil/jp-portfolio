@@ -4,6 +4,7 @@ import { useState } from "react";
 import emailjs from "@emailjs/browser";
 
 export default function ContactPage() {
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -12,123 +13,99 @@ export default function ContactPage() {
     message: "",
   });
 
-  const [loading, setLoading] = useState(false);
-
+  // HANDLE INPUT CHANGE
   const handleChange = (e) => {
-
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-
   };
 
+  // HANDLE FORM SUBMIT
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     setLoading(true);
 
     try {
+      // CHECK ENV VARIABLES
+      if (
+        !process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ||
+        !process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ||
+        !process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID ||
+        !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+      ) {
+        console.error("Missing EmailJS environment variables");
+        alert("Email configuration error.");
+        return;
+      }
 
       // =========================================
       // SEND EMAIL TO YOU
       // =========================================
 
-      await emailjs.send(
-
+      const mainResponse = await emailjs.send(
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-
         {
           from_name: formData.name,
           from_email: formData.email,
           subject: formData.subject,
           message: formData.message,
         },
-
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
-      console.log("Main email sent successfully");
+      console.log("Main email success:", mainResponse);
 
       // =========================================
-      // SEND AUTO REPLY TO VISITOR
+      // SEND AUTO REPLY TO USER
       // =========================================
 
       try {
-
-        await emailjs.send(
-
+        const autoReplyResponse = await emailjs.send(
           process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-
           process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID,
-
           {
             to_name: formData.name,
             to_email: formData.email,
             subject: formData.subject,
             message: formData.message,
           },
-
           process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
         );
 
-        console.log("Auto reply sent successfully");
-
+        console.log("Auto reply success:", autoReplyResponse);
       } catch (autoReplyError) {
-
-        console.log("Auto reply failed:", autoReplyError);
-
+        console.error("Auto reply failed:", autoReplyError);
       }
 
-      // =========================================
-      // SUCCESS POPUP
-      // =========================================
-
+      // SUCCESS
       alert("Message sent successfully!");
 
-      // =========================================
       // RESET FORM
-      // =========================================
-
       setFormData({
         name: "",
         email: "",
         subject: "",
         message: "",
       });
-
     } catch (error) {
-
-      console.error("Main Email Error:", error);
-
+      console.error("Main email error:", error);
       alert("Failed to send message.");
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   return (
-
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
-
       <div className="w-full max-w-2xl">
-
         <h1 className="text-4xl font-bold text-center mb-8">
           Contact Me
         </h1>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
-
+        <form onSubmit={handleSubmit} className="space-y-6">
           <input
             type="text"
             name="name"
@@ -162,7 +139,7 @@ export default function ContactPage() {
           <textarea
             name="message"
             placeholder="Your Message"
-            rows="6"
+            rows={6}
             value={formData.message}
             onChange={handleChange}
             required
@@ -174,17 +151,10 @@ export default function ContactPage() {
             disabled={loading}
             className="w-full bg-black text-white rounded-lg py-4 text-lg"
           >
-
             {loading ? "Sending..." : "Send Message"}
-
           </button>
-
         </form>
-
       </div>
-
     </div>
-
   );
-
 }
