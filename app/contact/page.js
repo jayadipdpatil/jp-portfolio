@@ -31,9 +31,9 @@ export default function ContactPage() {
 
     try {
 
-      // =========================
+      // =========================================
       // SEND EMAIL TO YOU
-      // =========================
+      // =========================================
 
       await emailjs.send(
 
@@ -53,9 +53,9 @@ export default function ContactPage() {
 
       console.log("Main email sent successfully");
 
-      // =========================
-      // AUTO REPLY TO CLIENT
-      // =========================
+      // =========================================
+      // SEND AUTO REPLY TO VISITOR
+      // =========================================
 
       try {
 
@@ -83,15 +83,15 @@ export default function ContactPage() {
 
       }
 
-      // =========================
-      // SUCCESS MESSAGE
-      // =========================
+      // =========================================
+      // SUCCESS POPUP
+      // =========================================
 
       alert("Message sent successfully!");
 
-      // =========================
+      // =========================================
       // RESET FORM
-      // =========================
+      // =========================================
 
       setFormData({
         name: "",
@@ -102,7 +102,7 @@ export default function ContactPage() {
 
     } catch (error) {
 
-      console.error("Main EmailJS Error:", error);
+      console.error("Main Email Error:", error);
 
       alert("Failed to send message.");
 
@@ -116,11 +116,11 @@ export default function ContactPage() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
 
       <div className="w-full max-w-2xl">
 
-        <h1 className="text-4xl font-bold mb-8 text-center">
+        <h1 className="text-4xl font-bold text-center mb-8">
           Contact Me
         </h1>
 
@@ -136,7 +136,7 @@ export default function ContactPage() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
+            className="w-full border border-gray-300 rounded-lg p-4"
           />
 
           <input
@@ -146,7 +146,7 @@ export default function ContactPage() {
             value={formData.email}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
+            className="w-full border border-gray-300 rounded-lg p-4"
           />
 
           <input
@@ -156,7 +156,7 @@ export default function ContactPage() {
             value={formData.subject}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
+            className="w-full border border-gray-300 rounded-lg p-4"
           />
 
           <textarea
@@ -166,7 +166,7 @@ export default function ContactPage() {
             value={formData.message}
             onChange={handleChange}
             required
-            className="w-full border border-gray-300 rounded-lg p-4 outline-none"
+            className="w-full border border-gray-300 rounded-lg p-4"
           />
 
           <button
