@@ -708,12 +708,12 @@ video {
 .w-9 {
   width: 2.25rem;
 }
-.w-full {
-  width: 100%;
-}
 .w-fit {
   width: -moz-fit-content;
   width: fit-content;
+}
+.w-full {
+  width: 100%;
 }
 .max-w-2xl {
   max-width: 42rem;
