@@ -4,6 +4,7 @@ import { useState } from "react";
 import emailjs from "@emailjs/browser";
 
 export default function ContactPage() {
+
   const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -15,19 +16,23 @@ export default function ContactPage() {
 
   // HANDLE INPUT CHANGE
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
   };
 
   // HANDLE FORM SUBMIT
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     setLoading(true);
 
     try {
+
       // CHECK ENV VARIABLES
       if (
         !process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ||
@@ -35,77 +40,116 @@ export default function ContactPage() {
         !process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID ||
         !process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       ) {
-        console.error("Missing EmailJS environment variables");
-        alert("Email configuration error.");
+
+        alert("Missing EmailJS environment variables");
+        console.error("Missing env variables");
+
+        setLoading(false);
+
         return;
+
       }
 
       // =========================================
       // SEND EMAIL TO YOU
       // =========================================
 
-      const mainResponse = await emailjs.send(
+      const mainEmailResponse = await emailjs.send(
+
         process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+
         process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+
         {
           from_name: formData.name,
           from_email: formData.email,
           subject: formData.subject,
           message: formData.message,
         },
+
         process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+
       );
 
-      console.log("Main email success:", mainResponse);
+      console.log("Main email success:", mainEmailResponse);
 
       // =========================================
       // SEND AUTO REPLY TO USER
       // =========================================
 
       try {
+
         const autoReplyResponse = await emailjs.send(
+
           process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+
           process.env.NEXT_PUBLIC_EMAILJS_AUTOREPLY_TEMPLATE_ID,
+
           {
             to_name: formData.name,
-            to_email: formData.email,
+            recipient: formData.email,
             subject: formData.subject,
             message: formData.message,
           },
+
           process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+
         );
 
         console.log("Auto reply success:", autoReplyResponse);
+
       } catch (autoReplyError) {
+
         console.error("Auto reply failed:", autoReplyError);
+
       }
 
-      // SUCCESS
+      // =========================================
+      // SUCCESS ALERT
+      // =========================================
+
       alert("Message sent successfully!");
 
+      // =========================================
       // RESET FORM
+      // =========================================
+
       setFormData({
         name: "",
         email: "",
         subject: "",
         message: "",
       });
+
     } catch (error) {
-      console.error("Main email error:", error);
+
+      console.error("Main email failed:", error);
+
       alert("Failed to send message.");
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
   return (
+
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
+
       <div className="w-full max-w-2xl">
+
         <h1 className="text-4xl font-bold text-center mb-8">
           Contact Me
         </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6"
+        >
+
           <input
             type="text"
             name="name"
@@ -151,10 +195,17 @@ export default function ContactPage() {
             disabled={loading}
             className="w-full bg-black text-white rounded-lg py-4 text-lg"
           >
+
             {loading ? "Sending..." : "Send Message"}
+
           </button>
+
         </form>
+
       </div>
+
     </div>
+
   );
+
 }
